@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "ml-template"
+version = "0.1.0"
+description = ""
+authors = ["xpakx <55586470+xpakx@users.noreply.github.com>"]
+readme = "README.md"
+packages = [{include = "ml_template"}]
+
+[tool.poetry.dependencies]
+python = ">=3.11,<3.13"
+pandas = "^2.1.3"
+seaborn = "^0.13.0"
+numpy = "^1.26"
+scipy = "^1.11"
+scikit-learn = "^1.3.2"
+catppuccin-matplotlib = "^0.4"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
