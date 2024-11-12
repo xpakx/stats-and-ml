@@ -29,11 +29,15 @@ def calculate():
     grouped_data['pct'] = grouped_data.groupby(['year', 'sex'])['count'].transform(lambda x: x / x.sum() * 100)
 
     virgin_data = grouped_data[grouped_data['virgin'] == True]
-
     virgin_data['sex'] = virgin_data['sex'].map({1: 'Male', 2: 'Female'})
+    return virgin_data
 
+
+def plot(virgin_data, exclude=None):
     plt.figure(figsize=(10, 6))
     for sex in virgin_data['sex'].unique():
+        if sex == exclude:
+            continue
         sex_data = virgin_data[virgin_data['sex'] == sex]
         plt.plot(sex_data['year'], sex_data['pct'], marker=None, label=sex, linewidth=3)
 
@@ -45,13 +49,14 @@ def calculate():
     ax.xaxis.set_ticks_position('none')
     plt.ylim(0, 30)
 
-    # plt.xlabel('Year')
     plt.title('Share of individuals under age 30 who report zero opposite sex sexual partners since they turned 18.')
-    # plt.suptitle('Source: General Social Survey')
-    plt.legend(title='Sex')
+    if not exclude:
+        plt.legend(title='Sex')
     plt.grid(True, axis='y')
     plt.figtext(0.01, 0.01, 'Source: General Social Survey')
     plt.show()
 
 
-calculate()
+data = calculate()
+plot(data)
+plot(data, exclude="Female")
