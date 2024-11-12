@@ -20,7 +20,11 @@ def calculate():
         axis=1
     )
 
-    grouped_data = filtered_data.groupby(['year', 'sex', 'virgin']).size().reset_index(name='count')
+    grouped_data = filtered_data.groupby(['year', 'sex', 'virgin']).apply(
+        lambda x: pd.Series({
+            'count': x['wtssps'].sum()
+        }), include_groups=False
+    ).reset_index()
 
     grouped_data['pct'] = grouped_data.groupby(['year', 'sex'])['count'].transform(lambda x: x / x.sum() * 100)
 
@@ -39,6 +43,7 @@ def calculate():
     ax.spines['left'].set_visible(False)
     ax.yaxis.grid(True)
     ax.xaxis.set_ticks_position('none')
+    plt.ylim(0, 30)
 
     # plt.xlabel('Year')
     plt.title('Share of individuals under age 30 who report zero opposite sex sexual partners since they turned 18.')
@@ -49,4 +54,4 @@ def calculate():
     plt.show()
 
 
-filter_data()
+calculate()
