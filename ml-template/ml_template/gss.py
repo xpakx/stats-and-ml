@@ -17,7 +17,9 @@ def filter_data(data):
 
 def calculate(data):
     data['virgin'] = data.apply(
-        lambda row: row['numwomen'] == 0 if row['sex'] == 1 else row['nummen'] == 0,
+        lambda row: row['numwomen'] == 0
+        if row['sex'] == 1
+        else row['nummen'] == 0,
         axis=1
     )
 
@@ -27,7 +29,9 @@ def calculate(data):
         }), include_groups=False
     ).reset_index()
 
-    grouped_data['pct'] = grouped_data.groupby(['year', 'sex'])['count'].transform(lambda x: x / x.sum() * 100)
+    grouped_data['pct'] = grouped_data.\
+        groupby(['year', 'sex'])['count'].\
+        transform(lambda x: x / x.sum() * 100)
 
     virgin_data = grouped_data[grouped_data['virgin']]
     virgin_data['sex'] = virgin_data['sex'].map({1: 'Male', 2: 'Female'})
@@ -40,7 +44,13 @@ def plot(virgin_data, exclude=None):
         if sex == exclude:
             continue
         sex_data = virgin_data[virgin_data['sex'] == sex]
-        plt.plot(sex_data['year'], sex_data['pct'], marker=None, label=sex, linewidth=3)
+        plt.plot(
+                sex_data['year'],
+                sex_data['pct'],
+                marker=None,
+                label=sex,
+                linewidth=3
+        )
 
     ax = plt.gca()
     ax.spines['top'].set_visible(False)
@@ -50,7 +60,9 @@ def plot(virgin_data, exclude=None):
     ax.xaxis.set_ticks_position('none')
     plt.ylim(0, 30)
 
-    plt.title('Share of individuals under age 30 who report zero opposite sex sexual partners since they turned 18.')
+    plt.title(
+            'Share of individuals under age 30 who report ' +
+            'zero opposite sex sexual partners since they turned 18.')
     if not exclude:
         plt.legend(title='Sex')
     plt.grid(True, axis='y')
