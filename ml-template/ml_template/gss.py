@@ -2,25 +2,26 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 
-def filter_data():
+def prefilter_data():
     gss_data = pd.read_stata("gss7222_r3.dta", convert_categoricals=False)
     data = gss_data[["year", "age", "sex", "numwomen", "nummen", "wtssps"]]
     data.to_csv('gss_data.csv')
 
 
-def calculate():
-    gss_data = pd.read_csv("gss_data.csv")
-    filtered_data = gss_data[
-            (gss_data['age'] >= 18) & (gss_data['age'] < 30)
-            & gss_data['sex'].isin([1, 2])
+def filter_data(data):
+    return data[
+            (data['age'] >= 18) & (data['age'] < 30)
+            & (data['sex'].isin([1, 2]))
         ].dropna(subset=['numwomen', 'nummen'])
 
-    filtered_data['virgin'] = filtered_data.apply(
+
+def calculate(data):
+    data['virgin'] = data.apply(
         lambda row: row['numwomen'] == 0 if row['sex'] == 1 else row['nummen'] == 0,
         axis=1
     )
 
-    grouped_data = filtered_data.groupby(['year', 'sex', 'virgin']).apply(
+    grouped_data = data.groupby(['year', 'sex', 'virgin']).apply(
         lambda x: pd.Series({
             'count': x['wtssps'].sum()
         }), include_groups=False
@@ -57,6 +58,7 @@ def plot(virgin_data, exclude=None):
     plt.show()
 
 
-data = calculate()
+raw_data = pd.read_csv("gss_data.csv")
+filtered_data = filter_data(raw_data)
+data = calculate(filtered_data)
 plot(data)
-plot(data, exclude="Female")
