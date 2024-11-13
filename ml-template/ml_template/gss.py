@@ -29,7 +29,7 @@ def calculate(data):
 
     grouped_data['pct'] = grouped_data.groupby(['year', 'sex'])['count'].transform(lambda x: x / x.sum() * 100)
 
-    virgin_data = grouped_data[grouped_data['virgin'] == True]
+    virgin_data = grouped_data[grouped_data['virgin']]
     virgin_data['sex'] = virgin_data['sex'].map({1: 'Male', 2: 'Female'})
     return virgin_data
 
