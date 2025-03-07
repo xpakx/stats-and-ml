@@ -2,7 +2,7 @@ use anyhow::Result;
 use polars::prelude::*;
 
 fn main() -> Result<()> {
-    let mut teams = LazyCsvReader::new("data/teams.csv")
+    let teams = LazyCsvReader::new("data/teams.csv")
             .with_has_header(true)
             .finish()?
             .collect()?;
@@ -15,39 +15,22 @@ fn main() -> Result<()> {
         maintain_order: false, 
         limit: None
     };
-    teams.sort_in_place(["age"], sort_options)?;
 
-    println!("After sorting:\n{}", teams.head(Some(10)));
-
-    let ages = teams
+    let measures = teams
         .lazy()
+        .sort(
+            ["age"],
+            sort_options
+        )
         .select([col("age").cast(DataType::Float64)])
+        .select([
+            col("age").mean().alias("mean_age"),
+            col("age").slice(0, 5).mean().alias("mean_5_youngest"),
+            col("age").median().alias("median_age"),
+        ])
         .collect()?;
 
-    let mean_age = ages
-        .clone()
-        .lazy()
-        .select([col("age").mean().alias("average_age")])
-        .collect()?;
-
-    println!("Mean age:\n{}", mean_age);
-
-    let mean_age = ages
-        .clone()
-        .lazy()
-        .slice(0, 5)
-        .select([col("age").mean().alias("average_age")])
-        .collect()?;
-
-    println!("Mean age (5 youngest):\n{}", mean_age);
-
-    let median_age = ages
-        .clone()
-        .lazy()
-        .select([col("age").median().alias("median_age")])
-        .collect()?;
-
-    println!("Median age:\n{}", median_age);
+    println!("{}", measures);
 
     Ok(())
 }
