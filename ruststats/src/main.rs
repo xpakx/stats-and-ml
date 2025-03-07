@@ -10,13 +10,11 @@ fn main() -> Result<()> {
 
     let sort_options = SortMultipleOptions { 
         descending: vec![false], 
-        nulls_last: vec![false], 
-        multithreaded: true, 
-        maintain_order: false, 
-        limit: None
+        ..Default::default()
     };
 
     let measures = teams
+        .clone()
         .lazy()
         .sort(
             ["age"],
@@ -31,6 +29,33 @@ fn main() -> Result<()> {
         .collect()?;
 
     println!("{}", measures);
+
+
+    let sort_options = SortMultipleOptions { 
+        descending: vec![true], 
+        ..Default::default()
+    };
+
+    let age_counts = teams
+        .clone()
+        .lazy()
+        .select([col("age").cast(DataType::Float64)])
+        .group_by([col("age")])
+        .agg([
+            col("age").count().alias("count")
+        ])
+        .sort(
+            ["count"],
+            sort_options
+        )
+        .collect()?;
+
+    println!("{}", age_counts.clone().head(Some(10)));
+    let max = age_counts
+        .lazy()
+        .select([col("count").max()])
+        .collect()?;
+    println!("{}", max);
 
     Ok(())
 }
