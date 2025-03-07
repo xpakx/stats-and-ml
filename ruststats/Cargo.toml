@@ -1,0 +1,7 @@
+[package]
+name = "ruststats"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+polars = { version = "0.46.0", features = ["lazy"] }
