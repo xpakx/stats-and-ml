@@ -1,3 +1,5 @@
+use std::i64;
+
 use anyhow::Result;
 use polars::prelude::*;
 
@@ -13,6 +15,10 @@ fn main() -> Result<()> {
         ..Default::default()
     };
 
+    let count = teams.shape().0 as i64;
+    let start = count / 10;
+    let ln = count - 2 * start;
+
     let measures = teams
         .clone()
         .lazy()
@@ -24,7 +30,9 @@ fn main() -> Result<()> {
         .select([
             col("age").mean().alias("mean_age"),
             col("age").slice(0, 5).mean().alias("mean_5_youngest"),
+            col("age").slice(start, ln).mean().alias("trimmed_mean"),
             col("age").median().alias("median_age"),
+            col("age").mode().alias("mode_age"), // NOTE: needs 'mode' feature
         ])
         .collect()?;
 
@@ -37,7 +45,6 @@ fn main() -> Result<()> {
     };
 
     let age_counts = teams
-        .clone()
         .lazy()
         .select([col("age").cast(DataType::Float64)])
         .group_by([col("age")])
@@ -59,4 +66,3 @@ fn main() -> Result<()> {
 
     Ok(())
 }
-
